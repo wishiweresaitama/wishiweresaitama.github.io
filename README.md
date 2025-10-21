@@ -1,0 +1,1 @@
+# wishiweresaitama.github.io
