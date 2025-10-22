@@ -2,6 +2,37 @@
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.getElementById('nav-menu');
 
+// Theme Toggle
+const themeToggle = document.getElementById('theme-toggle');
+const body = document.body;
+
+// Check for saved theme preference or default to light mode
+const currentTheme = localStorage.getItem('theme') || 'light';
+body.setAttribute('data-theme', currentTheme);
+
+// Update theme toggle icon
+function updateThemeIcon(theme) {
+    const icon = themeToggle.querySelector('i');
+    if (theme === 'dark') {
+        icon.className = 'fas fa-sun';
+    } else {
+        icon.className = 'fas fa-moon';
+    }
+}
+
+// Initialize theme
+updateThemeIcon(currentTheme);
+
+// Theme toggle event listener
+themeToggle.addEventListener('click', () => {
+    const currentTheme = body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+});
+
 hamburger.addEventListener('click', () => {
     hamburger.classList.toggle('active');
     navMenu.classList.toggle('active');
@@ -32,11 +63,22 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // Navbar background change on scroll
 window.addEventListener('scroll', () => {
     const navbar = document.querySelector('.navbar');
+    const currentTheme = body.getAttribute('data-theme');
+    
     if (window.scrollY > 50) {
-        navbar.style.background = 'rgba(255, 255, 255, 0.98)';
-        navbar.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
+        if (currentTheme === 'dark') {
+            navbar.style.background = 'rgba(40, 40, 40, 0.98)';
+            navbar.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.3)';
+        } else {
+            navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+            navbar.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
+        }
     } else {
-        navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+        if (currentTheme === 'dark') {
+            navbar.style.background = 'rgba(40, 40, 40, 0.95)';
+        } else {
+            navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+        }
         navbar.style.boxShadow = 'none';
     }
 });
@@ -140,15 +182,18 @@ function showNotification(message, type = 'info') {
     notification.textContent = message;
     
     // Add styles
+    const currentTheme = body.getAttribute('data-theme');
+    const isDark = currentTheme === 'dark';
+    
     notification.style.cssText = `
         position: fixed;
         top: 100px;
         right: 20px;
-        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#6366f1'};
-        color: white;
+        background: ${type === 'success' ? (isDark ? '#689d6a' : '#10b981') : type === 'error' ? (isDark ? '#cc241d' : '#ef4444') : (isDark ? '#458588' : '#6366f1')};
+        color: ${isDark ? 'var(--fg-dark)' : 'white'};
         padding: 15px 20px;
         border-radius: 10px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 10px 25px ${isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.2)'};
         z-index: 10000;
         transform: translateX(100%);
         transition: transform 0.3s ease;
@@ -246,24 +291,38 @@ document.querySelectorAll('.project-card').forEach(card => {
 const scrollToTopBtn = document.createElement('button');
 scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
 scrollToTopBtn.className = 'scroll-to-top';
+// Function to update scroll to top button colors
+function updateScrollToTopColors() {
+    const currentTheme = body.getAttribute('data-theme');
+    if (currentTheme === 'dark') {
+        scrollToTopBtn.style.background = 'var(--blue-dark)';
+        scrollToTopBtn.style.color = 'var(--fg-dark)';
+        scrollToTopBtn.style.boxShadow = '0 4px 12px rgba(69, 133, 136, 0.3)';
+    } else {
+        scrollToTopBtn.style.background = 'var(--blue-light)';
+        scrollToTopBtn.style.color = 'var(--fg-light)';
+        scrollToTopBtn.style.boxShadow = '0 4px 12px rgba(69, 133, 136, 0.3)';
+    }
+}
+
 scrollToTopBtn.style.cssText = `
     position: fixed;
     bottom: 30px;
     right: 30px;
     width: 50px;
     height: 50px;
-    background: #6366f1;
-    color: white;
     border: none;
     border-radius: 50%;
     cursor: pointer;
     font-size: 1.2rem;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
     z-index: 1000;
 `;
+
+// Initialize scroll to top button colors
+updateScrollToTopColors();
 
 document.body.appendChild(scrollToTopBtn);
 
@@ -287,12 +346,22 @@ window.addEventListener('scroll', () => {
 // Add hover effect to scroll to top button
 scrollToTopBtn.addEventListener('mouseenter', function() {
     this.style.transform = 'scale(1.1)';
-    this.style.background = '#4f46e5';
+    const currentTheme = body.getAttribute('data-theme');
+    if (currentTheme === 'dark') {
+        this.style.background = 'var(--blue-light)';
+    } else {
+        this.style.background = 'var(--blue-dark)';
+    }
 });
 
 scrollToTopBtn.addEventListener('mouseleave', function() {
     this.style.transform = 'scale(1)';
-    this.style.background = '#6366f1';
+    updateScrollToTopColors();
+});
+
+// Update scroll to top button when theme changes
+themeToggle.addEventListener('click', () => {
+    setTimeout(updateScrollToTopColors, 100);
 });
 
 // Loading animation
